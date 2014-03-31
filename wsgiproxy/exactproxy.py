@@ -112,7 +112,12 @@ def parse_headers(message):
     Turn a Message object into a list of WSGI-style headers.
     """
     headers_out = []
-    if hasattr(message, 'headers'):
+    # If we get the wrong level object here we might already have the headers.
+    # Handle this naively until we see a case that requires continuation.
+    # Perhaps this is due to changes in the Python 3.3 http lib structure.
+    if not hasattr(message, 'header'):
+        headers_out = message.raw_items()
+    else:
         for full_header in message.headers:
             if not full_header:
                 # Shouldn't happen, but we'll just ignore
