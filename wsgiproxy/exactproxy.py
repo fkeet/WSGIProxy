@@ -1,5 +1,5 @@
-import httplib
-from urllib import quote as url_quote
+import http.client
+from urllib.parse import quote as url_quote
 import socket
 from paste import httpexceptions
 
@@ -54,15 +54,15 @@ def proxy_exact_request(environ, start_response):
     """
     scheme = environ['wsgi.url_scheme']
     if scheme == 'http':
-        ConnClass = httplib.HTTPConnection
+        ConnClass = http.client.HTTPConnection
     elif scheme == 'https':
-        ConnClass = httplib.HTTPSConnection
+        ConnClass = http.client.HTTPSConnection
     else:
         raise ValueError(
             "Unknown scheme: %r" % scheme)
     conn = ConnClass('%(SERVER_NAME)s:%(SERVER_PORT)s' % environ)
     headers = {}
-    for key, value in environ.items():
+    for key, value in list(environ.items()):
         if key.startswith('HTTP_'):
             key = key[5:].replace('_', '-').title()
             headers[key] = value
@@ -86,7 +86,7 @@ def proxy_exact_request(environ, start_response):
     try:
         conn.request(environ['REQUEST_METHOD'],
                      path, body, headers)
-    except socket.error, exc:
+    except socket.error as exc:
         if exc.args[0] == -2:
             # Name or service not known
             exc = httpexceptions.HTTPBadGateway(
