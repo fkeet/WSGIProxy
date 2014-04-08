@@ -76,7 +76,7 @@ class SpawningApplication(object):
         self.last_request = None
         if logger is None:
             logger = logging.getLogger('wsgifilter.spawn')
-        if isinstance(logger, basestring):
+        if isinstance(logger, str):
             logger = logging.getLogger(logger)
         self.logger = logger
         apps.append(weakref.ref(self))
@@ -162,7 +162,7 @@ class SpawningApplication(object):
                 socket.AF_INET, socket.SOCK_STREAM)
             try:
                 s.bind((host, port))
-            except socket.error, e:
+            except socket.error as e:
                 port += 1
             else:
                 s.close()
@@ -179,7 +179,7 @@ class SpawningApplication(object):
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect(('127.0.0.1', self.fcgi_port))
-            except socket.error, e:
+            except socket.error as e:
                 pass
             else:
                 sock.close()
