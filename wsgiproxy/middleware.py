@@ -1,6 +1,6 @@
 import simplejson
-import cPickle as pickle
-import urllib
+import pickle as pickle
+import urllib.request, urllib.parse, urllib.error
 from wsgiproxy import protocol_version
 from wsgiproxy.secretloader import get_secret
 from paste import httpexceptions
@@ -76,7 +76,7 @@ class WSGIProxyMiddleware(object):
         self.application = application
         self.secret_file = secret_file
         if trust_ips is not None:
-            if isinstance(trust_ips, basestring):
+            if isinstance(trust_ips, str):
                 trust_ips = [trust_ips]
             self.trust_ips = trust_ips
         else:
@@ -113,7 +113,7 @@ class WSGIProxyMiddleware(object):
         self._fixup_environ(environ, start_response)
         try:
             self._fixup_configured(environ)
-        except httpexceptions.HTTPException, exc:
+        except httpexceptions.HTTPException as exc:
             return exc(environ, start_response)
         return self.application(environ, start_response)
 
@@ -184,7 +184,7 @@ class WSGIProxyMiddleware(object):
                         # Better error again!
                         assert 0
                     key_name, value = environ[key].split(None, 1)
-                    key_name = urllib.unquote(key_name)
+                    key_name = urllib.parse.unquote(key_name)
                     value = decoder(value)
                     environ[key_name] = value
 
